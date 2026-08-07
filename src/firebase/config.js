@@ -1,4 +1,4 @@
-// Firebase Production Initialization Module
+// Firebase Production Configuration for autolog-3220a
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { 
@@ -13,24 +13,30 @@ import {
 
 const CONFIG_STORAGE_KEY = 'autolog_firebase_config_v1';
 
-// Read config from LocalStorage if previously entered or fallback to production
 export function getFirebaseConfig() {
   try {
     const stored = localStorage.getItem(CONFIG_STORAGE_KEY);
     if (stored) {
       const cfg = JSON.parse(stored);
-      if (cfg.apiKey && cfg.projectId) {
-        if (!cfg.authDomain) cfg.authDomain = `${cfg.projectId}.firebaseapp.com`;
-        if (!cfg.storageBucket) cfg.storageBucket = `${cfg.projectId}.firebasestorage.app`;
-        return cfg;
+      if (cfg.apiKey) {
+        return {
+          apiKey: cfg.apiKey,
+          authDomain: cfg.authDomain || 'autolog-3220a.firebaseapp.com',
+          projectId: cfg.projectId || 'autolog-3220a',
+          storageBucket: cfg.storageBucket || 'autolog-3220a.firebasestorage.app'
+        };
       }
     }
   } catch (e) {
     console.error('Firebase config read error', e);
   }
   
-  // Default fallback if stored key exists
-  return null;
+  // Production Fallback for autolog.buzapeter.hu
+  return {
+    projectId: 'autolog-3220a',
+    authDomain: 'autolog-3220a.firebaseapp.com',
+    storageBucket: 'autolog-3220a.firebasestorage.app'
+  };
 }
 
 let app = null;
@@ -40,7 +46,7 @@ let isFirebaseActive = false;
 
 const userConfig = getFirebaseConfig();
 
-if (userConfig && userConfig.apiKey && userConfig.projectId) {
+if (userConfig && userConfig.projectId) {
   try {
     if (!getApps().length) {
       app = initializeApp(userConfig);
@@ -58,23 +64,23 @@ if (userConfig && userConfig.apiKey && userConfig.projectId) {
 
 // Auth Actions
 export async function loginWithGoogle() {
-  if (!isFirebaseActive || !auth) {
-    throw new Error('A Firebase még nincs csatlakoztatva.');
+  if (!auth) {
+    throw new Error('A Firebase Auth még nincs inicializálva.');
   }
   const provider = new GoogleAuthProvider();
   return await signInWithPopup(auth, provider);
 }
 
 export async function loginWithEmail(email, password) {
-  if (!isFirebaseActive || !auth) {
-    throw new Error('A Firebase még nincs csatlakoztatva.');
+  if (!auth) {
+    throw new Error('A Firebase Auth még nincs inicializálva.');
   }
   return await signInWithEmailAndPassword(auth, email, password);
 }
 
 export async function registerWithEmail(email, password) {
-  if (!isFirebaseActive || !auth) {
-    throw new Error('A Firebase még nincs csatlakoztatva.');
+  if (!auth) {
+    throw new Error('A Firebase Auth még nincs inicializálva.');
   }
   return await createUserWithEmailAndPassword(auth, email, password);
 }
