@@ -1,4 +1,4 @@
-// Firebase Production Configuration Module
+// Firebase Production Configuration for autolog-3220a
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { 
@@ -11,77 +11,52 @@ import {
   onAuthStateChanged 
 } from 'firebase/auth';
 
-const CONFIG_STORAGE_KEY = 'autolog_firebase_config_v1';
-
-export function getStoredFirebaseConfig() {
-  try {
-    const stored = localStorage.getItem(CONFIG_STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch (e) {
-    console.error('Firebase config read error', e);
-  }
-  return null;
-}
-
-export function setFirebaseApiKey(apiKey, projectId = 'autolog-3220a') {
-  try {
-    const config = {
-      apiKey: apiKey.trim(),
-      projectId: projectId.trim(),
-      authDomain: `${projectId.trim()}.firebaseapp.com`,
-      storageBucket: `${projectId.trim()}.firebasestorage.app`
-    };
-    localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
-    window.location.reload();
-  } catch (e) {
-    console.error('Firebase config save error', e);
-  }
-}
+// Permanently baked production config for autolog-3220a
+export const firebaseConfig = {
+  apiKey: 'AIzaSyB_t-h3p-thAYUg9OaudL2wLZmdqwxJHcQ',
+  projectId: 'autolog-3220a',
+  authDomain: 'autolog-3220a.firebaseapp.com',
+  storageBucket: 'autolog-3220a.firebasestorage.app'
+};
 
 let app = null;
 let db = null;
 let auth = null;
 let isFirebaseActive = false;
 
-const userConfig = getStoredFirebaseConfig();
-
-if (userConfig && userConfig.apiKey) {
-  try {
-    if (!getApps().length) {
-      app = initializeApp(userConfig);
-    } else {
-      app = getApps()[0];
-    }
-    db = getFirestore(app);
-    auth = getAuth(app);
-    isFirebaseActive = true;
-  } catch (err) {
-    console.error('Failed to initialize Firebase:', err);
-    isFirebaseActive = false;
+try {
+  if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+  } else {
+    app = getApps()[0];
   }
+  db = getFirestore(app);
+  auth = getAuth(app);
+  isFirebaseActive = true;
+} catch (err) {
+  console.error('Failed to initialize Firebase:', err);
+  isFirebaseActive = false;
 }
 
 // Auth Actions
 export async function loginWithGoogle() {
-  if (!isFirebaseActive || !auth) {
-    throw new Error('A Firebase API kulcs hiányzik. Kérjük adja meg az API Key-t!');
+  if (!auth) {
+    throw new Error('A Firebase Auth még nincs inicializálva.');
   }
   const provider = new GoogleAuthProvider();
   return await signInWithPopup(auth, provider);
 }
 
 export async function loginWithEmail(email, password) {
-  if (!isFirebaseActive || !auth) {
-    throw new Error('A Firebase API kulcs hiányzik. Kérjük adja meg az API Key-t!');
+  if (!auth) {
+    throw new Error('A Firebase Auth még nincs inicializálva.');
   }
   return await signInWithEmailAndPassword(auth, email, password);
 }
 
 export async function registerWithEmail(email, password) {
-  if (!isFirebaseActive || !auth) {
-    throw new Error('A Firebase API kulcs hiányzik. Kérjük adja meg az API Key-t!');
+  if (!auth) {
+    throw new Error('A Firebase Auth még nincs inicializálva.');
   }
   return await createUserWithEmailAndPassword(auth, email, password);
 }
