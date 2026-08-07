@@ -1,4 +1,4 @@
-// Unified Production Data Service (Auto-purges any legacy Firestore demo cars)
+// Production Data Service with vehicleId-scoped delete functions
 import { isFirebaseActive, db, auth } from './config';
 import { 
   collection, getDocs, addDoc, updateDoc, deleteDoc, doc 
@@ -26,7 +26,7 @@ export async function fetchVehicles() {
       const snap = await getDocs(colRef);
       let list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-      // Automatically purge any legacy demo cars that were written into the user's Firestore!
+      // Purge legacy demo cars
       const demoDocs = snap.docs.filter(d => {
         const data = d.data();
         return d.id.startsWith('demo-') || 
@@ -152,7 +152,18 @@ export async function addService(service) {
   return service;
 }
 
-export async function deleteService(serviceId) {
+export async function deleteService(vehicleId, serviceId) {
+  const currentUser = auth?.currentUser;
+
+  if (isFirebaseActive && db && currentUser && vehicleId && serviceId) {
+    try {
+      const docRef = doc(db, 'users', currentUser.uid, 'vehicles', vehicleId, 'service_logs', serviceId);
+      await deleteDoc(docRef);
+    } catch (e) {
+      console.error('Firebase deleteService error:', e);
+    }
+  }
+
   const all = getLocalData('services').filter(s => s.id !== serviceId);
   setLocalData('services', all);
 }
@@ -196,7 +207,18 @@ export async function addFluid(fluid) {
   return fluid;
 }
 
-export async function deleteFluid(fluidId) {
+export async function deleteFluid(vehicleId, fluidId) {
+  const currentUser = auth?.currentUser;
+
+  if (isFirebaseActive && db && currentUser && vehicleId && fluidId) {
+    try {
+      const docRef = doc(db, 'users', currentUser.uid, 'vehicles', vehicleId, 'fluid_logs', fluidId);
+      await deleteDoc(docRef);
+    } catch (e) {
+      console.error('Firebase deleteFluid error:', e);
+    }
+  }
+
   const all = getLocalData('fluids').filter(f => f.id !== fluidId);
   setLocalData('fluids', all);
 }
@@ -241,7 +263,18 @@ export async function addMileage(mileageEntry) {
   return mileageEntry;
 }
 
-export async function deleteMileage(mileageId) {
+export async function deleteMileage(vehicleId, mileageId) {
+  const currentUser = auth?.currentUser;
+
+  if (isFirebaseActive && db && currentUser && vehicleId && mileageId) {
+    try {
+      const docRef = doc(db, 'users', currentUser.uid, 'vehicles', vehicleId, 'mileage_logs', mileageId);
+      await deleteDoc(docRef);
+    } catch (e) {
+      console.error('Firebase deleteMileage error:', e);
+    }
+  }
+
   const all = getLocalData('mileage').filter(m => m.id !== mileageId);
   setLocalData('mileage', all);
 }
@@ -285,7 +318,18 @@ export async function addReminder(reminder) {
   return reminder;
 }
 
-export async function deleteReminder(reminderId) {
+export async function deleteReminder(vehicleId, reminderId) {
+  const currentUser = auth?.currentUser;
+
+  if (isFirebaseActive && db && currentUser && vehicleId && reminderId) {
+    try {
+      const docRef = doc(db, 'users', currentUser.uid, 'vehicles', vehicleId, 'reminders', reminderId);
+      await deleteDoc(docRef);
+    } catch (e) {
+      console.error('Firebase deleteReminder error:', e);
+    }
+  }
+
   const all = getLocalData('reminders').filter(r => r.id !== reminderId);
   setLocalData('reminders', all);
 }

@@ -114,6 +114,7 @@ export default function App() {
   };
 
   const handleDeleteVehicle = async (id) => {
+    if (!confirm('Biztosan törölni szeretné ezt az autót a garázsból?')) return;
     await deleteVehicle(id);
     const updatedVehicles = await fetchVehicles();
     setVehicles(updatedVehicles);
@@ -133,7 +134,8 @@ export default function App() {
   };
 
   const handleDeleteService = async (id) => {
-    await deleteService(id);
+    if (!confirm('Biztosan törölni szeretné ezt a szerviz bejegyzést?')) return;
+    await deleteService(activeVehicleId, id);
     setServices(prev => prev.filter(s => s.id !== id));
   };
 
@@ -145,7 +147,8 @@ export default function App() {
   };
 
   const handleDeleteFluid = async (id) => {
-    await deleteFluid(id);
+    if (!confirm('Biztosan törölni szeretné ezt a folyadék utántöltést?')) return;
+    await deleteFluid(activeVehicleId, id);
     setFluids(prev => prev.filter(f => f.id !== id));
   };
 
@@ -160,7 +163,8 @@ export default function App() {
   };
 
   const handleDeleteMileage = async (id) => {
-    await deleteMileage(id);
+    if (!confirm('Biztosan törölni szeretné ezt a kilométeróra állást?')) return;
+    await deleteMileage(activeVehicleId, id);
     setMileage(prev => prev.filter(m => m.id !== id));
   };
 
@@ -172,7 +176,8 @@ export default function App() {
   };
 
   const handleDeleteReminder = async (id) => {
-    await deleteReminder(id);
+    if (!confirm('Biztosan törölni szeretné ezt az emlékeztetőt?')) return;
+    await deleteReminder(activeVehicleId, id);
     setReminders(prev => prev.filter(r => r.id !== id));
   };
 
@@ -202,7 +207,7 @@ export default function App() {
     );
   }
 
-  // IF NOT LOGGED IN -> RENDER AUTH SCREEN FIRST! NO DEMO DATA!
+  // IF NOT LOGGED IN -> RENDER AUTH SCREEN
   if (!currentUser) {
     return <AuthScreen />;
   }
